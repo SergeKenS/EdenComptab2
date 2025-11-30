@@ -19,19 +19,22 @@ public class DataInitializer {
             CategorieRepository categorieRepository,
             ProduitRepository produitRepository,
             StockRepository stockRepository,
-            UtilisateurRepository utilisateurRepository
+            UtilisateurRepository utilisateurRepository,
+            org.springframework.security.crypto.password.PasswordEncoder passwordEncoder
     ) {
         return args -> {
             System.out.println("--- DÉBUT INITIALISATION DONNÉES DE TEST ---");
 
+            // ... (Code existant pour Tenant et Magasin) ...
             // 1. Création du Tenant
+            if (tenantRepository.count() > 0) return; // Eviter doublons si redémarrage sans drop-create
+
             Tenant tenant = Tenant.builder()
                     .nomSociete("Ma Super Entreprise")
                     .dateInscription(LocalDateTime.now())
                     .planAbonnement("Premium")
                     .build();
             tenant = tenantRepository.save(tenant);
-            System.out.println("✅ Tenant créé : " + tenant.getNomSociete());
 
             // 2. Création du Magasin
             Magasin magasin = Magasin.builder()
@@ -40,21 +43,20 @@ public class DataInitializer {
                     .tenant(tenant)
                     .build();
             magasin = magasinRepository.save(magasin);
-            System.out.println("✅ Magasin créé : " + magasin.getNomMagasin());
 
             // 3. Création d'un Utilisateur Admin
             Utilisateur admin = Utilisateur.builder()
                     .nomComplet("Jean Dupont")
                     .email("jean@admin.com")
-                    .motDePasse("secret123") // (A hasher plus tard en prod)
+                    .motDePasse(passwordEncoder.encode("secret123")) // Hashage du mot de passe !
                     .role("Admin")
                     .tenant(tenant)
                     .magasin(magasin)
                     .build();
             utilisateurRepository.save(admin);
-            System.out.println("✅ Admin créé : " + admin.getNomComplet());
+            System.out.println("✅ Admin créé : " + admin.getNomComplet() + " (Pass: secret123)");
 
-            // 4. Création Catalogue
+            // 4. Création Catalogue (Suite du code...)
             Categorie catBoissons = Categorie.builder()
                     .nomCategorie("Boissons")
                     .tenant(tenant)
@@ -70,8 +72,7 @@ public class DataInitializer {
                     .tenant(tenant)
                     .build();
             coca = produitRepository.save(coca);
-            System.out.println("✅ Produit créé : " + coca.getNomProduit());
-
+            
             // 5. Initialisation Stock
             Stock stockParis = Stock.builder()
                     .produit(coca)
@@ -80,7 +81,6 @@ public class DataInitializer {
                     .seuilAlerte(10)
                     .build();
             stockRepository.save(stockParis);
-            System.out.println("✅ Stock initialisé à Paris : " + stockParis.getQuantite() + " unités");
 
             System.out.println("--- FIN INITIALISATION DONNÉES DE TEST ---");
         };
