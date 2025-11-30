@@ -52,6 +52,7 @@ public class VenteService {
 
         BigDecimal montantTotalVente = BigDecimal.ZERO;
         List<LigneVente> lignesVente = new ArrayList<>();
+        List<MouvementStock> mouvementsToSave = new ArrayList<>();
 
         for (VenteRequest.LigneVenteRequest item : request.getArticles()) {
             Produit produit = produitRepository.findById(item.getProduitId())
@@ -70,7 +71,7 @@ public class VenteService {
             stock.setQuantite(stock.getQuantite() - item.getQuantite());
             stockRepository.save(stock);
 
-            // Historisation Mouvement Stock
+            // Historisation Mouvement Stock (Préparation)
             MouvementStock mvt = MouvementStock.builder()
                     .dateMvt(LocalDateTime.now())
                     .typeMvt("VENTE")
@@ -78,9 +79,9 @@ public class VenteService {
                     .produit(produit)
                     .magasin(magasin)
                     .utilisateur(vendeur)
-                    .commentaire("Vente #" + (vente.getId() != null ? vente.getId() : "Nouvelle"))
+                    // Commentaire sera mis à jour plus tard
                     .build();
-            mouvementStockRepository.save(mvt);
+            mouvementsToSave.add(mvt);
 
             // Création Ligne Vente
             BigDecimal sousTotal = produit.getPrixVenteStandard().multiply(BigDecimal.valueOf(item.getQuantite()));
@@ -133,6 +134,12 @@ public class VenteService {
 
         // Sauvegarde Vente Finale
         Vente venteSauvegardee = venteRepository.save(vente);
+
+        // Sauvegarde Mouvements avec ID Vente correct
+        for (MouvementStock mvt : mouvementsToSave) {
+            mvt.setCommentaire("Vente #" + venteSauvegardee.getId());
+            mouvementStockRepository.save(mvt);
+        }
 
         // 4. Enregistrement Transaction (Encaissement réel uniquement)
         if (montantPaye.compareTo(BigDecimal.ZERO) > 0) {

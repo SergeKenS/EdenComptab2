@@ -20,10 +20,12 @@ public class Stock {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_Produit", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Produit produit;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_Magasin", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Magasin magasin;
 
     @Column(nullable = false)

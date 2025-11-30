@@ -113,6 +113,6 @@ Ce projet démontre une architecture **Backend solide**, prête à scaler.
 - [x] Dashboard Analytique
 
 **⏳ Prochaines étapes (Roadmap) :**
-- [ ] **CRUD Complets** : Créer les endpoints pour gérer les Clients, Produits et Stocks (actuellement via SQL/Init).
-- [ ] **Sécurité** : Implémenter Spring Security & JWT pour authentifier les vendeurs.
+- [x] **CRUD Complets** : Créer les endpoints pour gérer les Clients, Produits et Stocks (actuellement via SQL/Init).
+- [ ] **Sécurité** : Implémenter Spring Security & JWT pour authentifier employer d'un Tenant.
 - [ ] **Frontend** : Développer l'interface utilisateur (React/Angular).

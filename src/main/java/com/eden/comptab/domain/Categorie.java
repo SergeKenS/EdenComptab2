@@ -21,6 +21,7 @@ public class Categorie {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_Tenant", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Tenant tenant;
 }
 
